@@ -19,9 +19,9 @@ public class PwnedPasswordChecker {
 
         String hash = line.substring(0, 40);
 
-        if (needle.equals(hash)) return Long.parseLong(line.substring(41));
-        else if (needle.compareTo(hash) < 0) return binarySearch(haystack, needle, start, middle - 1);
-        else /*if (needle.compareTo(hash) > 0)*/ return binarySearch(haystack, needle, middle + 1, end);
+        return needle.equals(hash) ? Long.parseLong(line.substring(41)) :
+        needle.compareTo(hash) < 0 ? binarySearch(haystack, needle, start, middle - 1) :
+        /* needle.compareTo(hash) > 0 ? */ binarySearch(haystack, needle, middle + 1, end);
     }
 
     private static long getCount(final String needle) throws IOException {
