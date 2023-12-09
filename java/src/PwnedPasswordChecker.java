@@ -10,14 +10,14 @@ public class PwnedPasswordChecker {
     private static long binarySearch(final RandomAccessFile haystack, final String needle, long start, long end) throws IOException {
         if (start > end) return 0;
 
-        long middle = (start + end) / 2;
+        final long middle = (start + end) / 2;
         haystack.seek(middle);
         haystack.readLine();
 
-        String line = haystack.readLine();
+        final String line = haystack.readLine();
         if (line == null) return 0;
 
-        String hash = line.substring(0, 40);
+        final String hash = line.substring(0, 40);
 
         return needle.equals(hash) ? Long.parseLong(line.substring(41)) :
         needle.compareTo(hash) < 0 ? binarySearch(haystack, needle, start, middle - 1) :
@@ -26,23 +26,23 @@ public class PwnedPasswordChecker {
 
     private static long getCount(final String needle) throws IOException {
         try (RandomAccessFile haystack = new RandomAccessFile(path, "r")) {
-            long size = haystack.length();
+            final long size = haystack.length();
             return binarySearch(haystack, needle, 0, size);
         }
     }
 
     private static String getHash(final String needle) throws NoSuchAlgorithmException {
-        MessageDigest digest = MessageDigest.getInstance("SHA-1");
-        byte[] hash = digest.digest(needle.getBytes(StandardCharsets.UTF_8));
+        final MessageDigest digest = MessageDigest.getInstance("SHA-1");
+        final byte[] hash = digest.digest(needle.getBytes(StandardCharsets.UTF_8));
 
-        StringBuilder hexStringBuilder = new StringBuilder();
-        for (byte b : hash) hexStringBuilder.append(String.format("%02x", b));
+        final StringBuilder hexStringBuilder = new StringBuilder();
+        for (final byte b : hash) hexStringBuilder.append(String.format("%02x", b));
 
         return hexStringBuilder.toString().toUpperCase();
     }
 
     public static void main(String[] args) throws NoSuchAlgorithmException, IOException {
-        for (String arg : args) {
+        for (final String arg : args) {
             System.out.println("Password: " + arg);
             System.out.println("Hash: " + getHash(arg));
             System.out.println("Count: " + getCount(getHash(arg)) + "\n");
