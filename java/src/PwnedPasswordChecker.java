@@ -15,8 +15,6 @@ public class PwnedPasswordChecker {
         haystack.readLine();
 
         final String line = haystack.readLine();
-        if (line == null) return 0;
-
         final String hash = line.substring(0, 40);
 
         return needle.equals(hash) ? Long.parseLong(line.substring(41)) :
