@@ -16,7 +16,7 @@ uint64_t binarySearch(std::ifstream& haystack, const std::string& needle, const 
 	std::getline(haystack, line);
 	const auto hash = line.substr(0, 40);
 
-	return needle == hash ? std::stoull(line.substr(41)) : needle < hash ? binarySearch(haystack, needle, start, middle - 1) : needle > hash ? binarySearch(haystack, needle, middle + 1, end) : -1;
+	return needle == hash ? std::stoull(line.substr(41)) : needle < hash ? binarySearch(haystack, needle, start, middle - 1) : /* needle > hash ? */ binarySearch(haystack, needle, middle + 1, end);
 }
 
 uint64_t getCount(const std::string& needle) {
