@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <iostream>
 
 #include "sha1.h"
 
