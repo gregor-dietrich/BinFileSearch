@@ -5,10 +5,8 @@
 
 constexpr auto path = "D:/pwned-passwords/pwned-passwords-sha1-ordered-by-hash-full.txt";
 
-uint64_t binarySearch(std::ifstream& haystack, const std::string& needle, const uint64_t start, const uint64_t end)
-{
-	if (start > end)
-		return 0;
+uint64_t binarySearch(std::ifstream& haystack, const std::string& needle, const uint64_t start, const uint64_t end) {
+	if (start > end) return 0;
 
 	const auto middle = (start + end) / 2;
 	haystack.seekg(middle, std::ios::beg);
@@ -18,16 +16,12 @@ uint64_t binarySearch(std::ifstream& haystack, const std::string& needle, const 
 	std::getline(haystack, line);
 	const auto hash = line.substr(0, 40);
 
-	return needle == hash ? std::stoull(line.substr(41)) :
-		needle < hash ? binarySearch(haystack, needle, start, middle - 1) :
-		needle > hash ? binarySearch(haystack, needle, middle + 1, end) : -1;
+	return needle == hash ? std::stoull(line.substr(41)) : needle < hash ? binarySearch(haystack, needle, start, middle - 1) : needle > hash ? binarySearch(haystack, needle, middle + 1, end) : -1;
 }
 
-uint64_t getCount(const std::string& needle)
-{
+uint64_t getCount(const std::string& needle) {
 	std::ifstream haystack(path);
-	if (!haystack)
-		return -1;
+	if (!haystack) return -1;
 
 	haystack.seekg(0, std::ifstream::end);
 	const uint64_t size = haystack.tellg();
@@ -38,8 +32,7 @@ uint64_t getCount(const std::string& needle)
 	return result;
 }
 
-std::string getHash(const std::string& plaintext)
-{
+std::string getHash(const std::string& plaintext) {
 	SHA1 checksum;
 	checksum.update(plaintext);
 	auto hash = checksum.final();
@@ -47,14 +40,7 @@ std::string getHash(const std::string& plaintext)
 	return hash;
 }
 
-int main(int argc, char** argv)
-{
-	for (int i = 1; i < argc; i++)
-	{
-		const auto hash = getHash(argv[i]);
-		std::cout << "Password: " << argv[i] << "\n";
-		std::cout << "Hash: " << hash << "\n";
-		std::cout << "Count: " << getCount(hash) << "\n\n";
-	}
+int main(int argc, char** argv) {
+	for (int i = 1; i < argc; i++) std::cout << "Password: " << argv[i] << "\n" << "Hash: " << getHash(argv[i]) << "\n" << "Count: " << getCount(getHash(argv[i])) << "\n\n";
 	return EXIT_SUCCESS;
 }
