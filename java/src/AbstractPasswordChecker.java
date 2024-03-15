@@ -4,7 +4,11 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public abstract class AbstractPasswordChecker {
-    protected final static String path = "D:/pwned-passwords/pwned-passwords-sha1-ordered-by-hash-full.txt";
+    protected final String path;
+
+    public AbstractPasswordChecker(final String path) {
+        this.path = path;
+    }
 
     public final String getHash(String needle) throws NoSuchAlgorithmException {
         final MessageDigest digest = MessageDigest.getInstance("SHA-1");

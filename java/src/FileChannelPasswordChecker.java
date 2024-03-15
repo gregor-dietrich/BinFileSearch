@@ -5,6 +5,10 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 
 public class FileChannelPasswordChecker extends AbstractPasswordChecker {
+    public FileChannelPasswordChecker(String path) {
+        super(path);
+    }
+
     protected long binarySearch(FileChannel haystack, String needle, long start, long end) throws IOException {
         if (start > end) {
             return 0;

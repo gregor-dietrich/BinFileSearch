@@ -2,6 +2,10 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 public class RandomAccessPasswordChecker extends AbstractPasswordChecker {
+    public RandomAccessPasswordChecker(String path) {
+        super(path);
+    }
+
     protected long binarySearch(RandomAccessFile haystack, String needle, long start, long end) throws IOException {
         if (start > end) {
             return 0;
