@@ -3,7 +3,9 @@ import java.io.RandomAccessFile;
 
 public class RandomAccessPasswordChecker extends AbstractPasswordChecker {
     protected long binarySearch(RandomAccessFile haystack, String needle, long start, long end) throws IOException {
-        if (start > end) return 0;
+        if (start > end) {
+            return 0;
+        }
 
         final long middle = (start + end) / 2;
         haystack.seek(middle);

@@ -11,7 +11,9 @@ public abstract class AbstractPasswordChecker {
         final byte[] hash = digest.digest(needle.getBytes(StandardCharsets.UTF_8));
 
         final StringBuilder hexStringBuilder = new StringBuilder();
-        for (final byte b : hash) hexStringBuilder.append(String.format("%02x", b));
+        for (final byte b : hash) {
+            hexStringBuilder.append(String.format("%02x", b));
+        }
 
         return hexStringBuilder.toString().toUpperCase();
     }

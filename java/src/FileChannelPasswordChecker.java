@@ -6,7 +6,9 @@ import java.nio.file.StandardOpenOption;
 
 public class FileChannelPasswordChecker extends AbstractPasswordChecker {
     protected long binarySearch(FileChannel haystack, String needle, long start, long end) throws IOException {
-        if (start > end) return 0;
+        if (start > end) {
+            return 0;
+        }
 
         final long middle = (start + end) / 2;
         haystack.position(middle);
@@ -16,13 +18,17 @@ public class FileChannelPasswordChecker extends AbstractPasswordChecker {
         buffer.flip();
 
         while (true) {
-            if (!buffer.hasRemaining() || buffer.get() == '\n') break;
+            if (!buffer.hasRemaining() || buffer.get() == '\n') {
+                break;
+            }
         }
 
         StringBuilder lineBuilder = new StringBuilder();
         while (buffer.hasRemaining()) {
             char c = (char) buffer.get();
-            if (c == '\n') break;
+            if (c == '\n') {
+                break;
+            }
             lineBuilder.append(c);
         }
 
