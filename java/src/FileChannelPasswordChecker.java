@@ -27,10 +27,10 @@ public class FileChannelPasswordChecker extends AbstractPasswordChecker {
         }
 
         final String line = lineBuilder.toString();
-        final String hash = line.substring(0, 40);
+        final String hash = line.substring(0, needle.length());
 
         try {
-            String countString = line.substring(41).trim(); // Trim any extra whitespace
+            String countString = line.substring(needle.length() + 1).trim(); // Trim any extra whitespace
             return needle.equals(hash) ? Long.parseLong(countString) :
                     needle.compareTo(hash) < 0 ? binarySearch(haystack, needle, start, middle - 1) :
                             /* needle.compareTo(hash) > 0 ? */ binarySearch(haystack, needle, middle + 1, end);

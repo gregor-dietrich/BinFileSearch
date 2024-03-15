@@ -10,9 +10,9 @@ public class RandomAccessPasswordChecker extends AbstractPasswordChecker {
         haystack.readLine();
 
         final String line = haystack.readLine();
-        final String hash = line.substring(0, 40);
+        final String hash = line.substring(0, needle.length());
 
-        return needle.equals(hash) ? Long.parseLong(line.substring(41)) :
+        return needle.equals(hash) ? Long.parseLong(line.substring(needle.length() + 1)) :
                 needle.compareTo(hash) < 0 ? binarySearch(haystack, needle, start, middle - 1) :
                         /* needle.compareTo(hash) > 0 ? */ binarySearch(haystack, needle, middle + 1, end);
     }
