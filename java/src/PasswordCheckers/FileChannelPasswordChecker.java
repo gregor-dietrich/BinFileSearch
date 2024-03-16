@@ -22,7 +22,7 @@ public final class FileChannelPasswordChecker implements IPasswordChecker {
         final long middle = (start + end) / 2;
         haystack.position(middle);
 
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        final ByteBuffer buffer = ByteBuffer.allocate(1024);
         haystack.read(buffer);
         buffer.flip();
 
@@ -32,7 +32,7 @@ public final class FileChannelPasswordChecker implements IPasswordChecker {
             }
         }
 
-        StringBuilder lineBuilder = new StringBuilder();
+        final StringBuilder lineBuilder = new StringBuilder();
         while (buffer.hasRemaining()) {
             char c = (char) buffer.get();
             if (c == '\n') {
@@ -45,7 +45,7 @@ public final class FileChannelPasswordChecker implements IPasswordChecker {
         final String hash = line.substring(0, needle.length());
 
         try {
-            String countString = line.substring(needle.length() + 1).trim(); // Trim any extra whitespace
+            final String countString = line.substring(needle.length() + 1).trim(); // Trim any extra whitespace
             return needle.equals(hash) ? Long.parseLong(countString) :
                     needle.compareTo(hash) < 0 ? binarySearch(haystack, needle, start, middle - 1) :
                             /* needle.compareTo(hash) > 0 ? */ binarySearch(haystack, needle, middle + 1, end);

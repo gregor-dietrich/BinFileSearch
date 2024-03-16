@@ -27,17 +27,17 @@ public final class PasswordCheckerApp {
     private static Map<String, Long> doBenchmark(final List<IPasswordChecker> checkers,
                                                        final String[] args)
             throws NoSuchAlgorithmException, IOException {
-        Map<String, Long> results = new HashMap<>();
-        StringBuilder output = new StringBuilder();
+        final Map<String, Long> results = new HashMap<>();
+        final StringBuilder output = new StringBuilder();
 
         for (final IPasswordChecker checker : checkers) {
-            Instant start = Instant.now();
+            final Instant start = Instant.now();
             for (int i = 1; i < args.length; i++) {
                 output.append("Password: ").append(args[i]).append("\n");
                 output.append("Hash: ").append(checker.getHash(args[i])).append("\n");
                 output.append("Count: ").append(checker.getCount(checker.getHash(args[i]))).append("\n\n");
             }
-            long timeElapsed = Duration.between(start, Instant.now()).toMillis();
+            final long timeElapsed = Duration.between(start, Instant.now()).toMillis();
             results.put(checker.getClass().getSimpleName(), timeElapsed);
         }
 
@@ -48,9 +48,9 @@ public final class PasswordCheckerApp {
     private static Map<String, Long[]> doBenchmark(final List<IPasswordChecker> checkers,
                                                    final String[] args, final int runs)
             throws NoSuchAlgorithmException, IOException {
-        Map<String, Long[]> results = new HashMap<>();
+        final Map<String, Long[]> results = new HashMap<>();
         for (int i = 0; i < runs; i++) {
-            Map<String, Long> temp = doBenchmark(checkers, args);
+            final Map<String, Long> temp = doBenchmark(checkers, args);
             for (Map.Entry<String, Long> entry : temp.entrySet()) {
                 if (results.containsKey(entry.getKey())) {
                     results.get(entry.getKey())[0] += entry.getValue();
