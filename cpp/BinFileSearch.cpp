@@ -7,7 +7,9 @@
 #include "sha1.h"
 
 uint64_t binarySearch(std::ifstream& haystack, const std::string& needle, const uint64_t start, const uint64_t end) {
-	if (start > end) return 0;
+	if (start > end) {
+		return 0;
+	}
 
 	const auto middle = (start + end) / 2;
 	haystack.seekg(middle, std::ios::beg);
@@ -90,14 +92,12 @@ int main(int argc, char** argv) {
 
 	// cold runs
 	long long coldResult = 0;
-	{
-		try {
-			coldResult = benchmark([&]() { searchPasswords(argc, argv); });
-		}
-		catch (const std::runtime_error& err) {
-			std::cerr << err.what() << '\n';
-			return EXIT_FAILURE;
-		}
+	try {
+		coldResult = benchmark([&]() { searchPasswords(argc, argv); });
+	}
+	catch (const std::runtime_error& err) {
+		std::cerr << err.what() << '\n';
+		return EXIT_FAILURE;
 	}
 
 	// warm runs
