@@ -5,13 +5,16 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.security.NoSuchAlgorithmException;
 
-public class FileChannelPasswordChecker extends AbstractPasswordChecker {
-    public FileChannelPasswordChecker(String path) {
-        super(path);
+public final class FileChannelPasswordChecker implements IPasswordChecker {
+    private final PasswordCheckerHelper helper;
+
+    public FileChannelPasswordChecker(PasswordCheckerHelper helper) {
+        this.helper = helper;
     }
 
-    protected long binarySearch(FileChannel haystack, String needle, long start, long end) throws IOException {
+    private long binarySearch(FileChannel haystack, String needle, long start, long end) throws IOException {
         if (start > end) {
             return 0;
         }
@@ -54,9 +57,14 @@ public class FileChannelPasswordChecker extends AbstractPasswordChecker {
 
     @Override
     public long getCount(String needle) throws IOException {
-        try (FileChannel haystack = FileChannel.open(Paths.get(path), StandardOpenOption.READ)) {
+        try (FileChannel haystack = FileChannel.open(Paths.get(helper.getPath()), StandardOpenOption.READ)) {
             final long size = haystack.size();
             return binarySearch(haystack, needle, 0, size);
         }
+    }
+
+    @Override
+    public String getHash(String needle) throws NoSuchAlgorithmException {
+        return helper.getHash(needle);
     }
 }

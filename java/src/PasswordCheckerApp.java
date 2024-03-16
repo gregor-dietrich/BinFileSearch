@@ -1,4 +1,5 @@
-import PasswordCheckers.AbstractPasswordChecker;
+import PasswordCheckers.IPasswordChecker;
+import PasswordCheckers.PasswordCheckerHelper;
 import PasswordCheckers.FileChannelPasswordChecker;
 import PasswordCheckers.RandomAccessPasswordChecker;
 
@@ -12,7 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PasswordCheckerApp {
+public final class PasswordCheckerApp {
     private static String path;
 
     private static boolean parseArgs(final String[] args) {
@@ -23,13 +24,13 @@ public class PasswordCheckerApp {
         return true;
     }
 
-    private static Map<String, Long> doBenchmark(final List<AbstractPasswordChecker> checkers,
+    private static Map<String, Long> doBenchmark(final List<IPasswordChecker> checkers,
                                                        final String[] args)
             throws NoSuchAlgorithmException, IOException {
         Map<String, Long> results = new HashMap<>();
         StringBuilder output = new StringBuilder();
 
-        for (final AbstractPasswordChecker checker : checkers) {
+        for (final IPasswordChecker checker : checkers) {
             Instant start = Instant.now();
             for (int i = 1; i < args.length; i++) {
                 output.append("Password: ").append(args[i]).append("\n");
@@ -44,7 +45,7 @@ public class PasswordCheckerApp {
         return results;
     }
 
-    private static Map<String, Long[]> doBenchmark(final List<AbstractPasswordChecker> checkers,
+    private static Map<String, Long[]> doBenchmark(final List<IPasswordChecker> checkers,
                                                    final String[] args, final int runs)
             throws NoSuchAlgorithmException, IOException {
         Map<String, Long[]> results = new HashMap<>();
@@ -74,9 +75,10 @@ public class PasswordCheckerApp {
             return;
         }
 
-        final List<AbstractPasswordChecker> checkers = new ArrayList<>();
-        checkers.add(new RandomAccessPasswordChecker(path));
-        checkers.add(new FileChannelPasswordChecker(path));
+        final PasswordCheckerHelper helper = new PasswordCheckerHelper(path);
+        final List<IPasswordChecker> checkers = new ArrayList<>();
+        checkers.add(new RandomAccessPasswordChecker(helper));
+        checkers.add(new FileChannelPasswordChecker(helper));
 
         final Map<String, Long> coldResults = doBenchmark(checkers, args);
         final Map<String, Long[]> warmResults = doBenchmark(checkers, args, 100);

@@ -1,18 +1,17 @@
 package PasswordCheckers;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public abstract class AbstractPasswordChecker {
-    protected final String path;
+public final class PasswordCheckerHelper {
+    private final String path;
 
-    public AbstractPasswordChecker(final String path) {
+    public PasswordCheckerHelper(final String path) {
         this.path = path;
     }
 
-    public final String getHash(String needle) throws NoSuchAlgorithmException {
+    public String getHash(String needle) throws NoSuchAlgorithmException {
         final MessageDigest digest = MessageDigest.getInstance("SHA-1");
         final byte[] hash = digest.digest(needle.getBytes(StandardCharsets.UTF_8));
 
@@ -24,5 +23,7 @@ public abstract class AbstractPasswordChecker {
         return hexStringBuilder.toString().toUpperCase();
     }
 
-    public abstract long getCount(String needle) throws IOException;
+    public String getPath() {
+        return path;
+    }
 }

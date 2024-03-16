@@ -2,13 +2,16 @@ package PasswordCheckers;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.security.NoSuchAlgorithmException;
 
-public class RandomAccessPasswordChecker extends AbstractPasswordChecker {
-    public RandomAccessPasswordChecker(String path) {
-        super(path);
+public final class RandomAccessPasswordChecker implements IPasswordChecker {
+    private final PasswordCheckerHelper helper;
+
+    public RandomAccessPasswordChecker(PasswordCheckerHelper helper) {
+        this.helper = helper;
     }
 
-    protected long binarySearch(RandomAccessFile haystack, String needle, long start, long end) throws IOException {
+    private long binarySearch(RandomAccessFile haystack, String needle, long start, long end) throws IOException {
         if (start > end) {
             return 0;
         }
@@ -27,9 +30,14 @@ public class RandomAccessPasswordChecker extends AbstractPasswordChecker {
 
     @Override
     public long getCount(String needle) throws IOException {
-        try (RandomAccessFile haystack = new RandomAccessFile(path, "r")) {
+        try (RandomAccessFile haystack = new RandomAccessFile(helper.getPath(), "r")) {
             final long size = haystack.length();
             return binarySearch(haystack, needle, 0, size);
         }
+    }
+
+    @Override
+    public String getHash(String needle) throws NoSuchAlgorithmException {
+        return helper.getHash(needle);
     }
 }
