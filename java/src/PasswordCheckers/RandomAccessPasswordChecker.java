@@ -5,10 +5,12 @@ import java.io.RandomAccessFile;
 import java.security.NoSuchAlgorithmException;
 
 public final class RandomAccessPasswordChecker implements IPasswordChecker {
-    private final PasswordCheckerHelper helper;
+    final RandomAccessFile fileStream;
+    final long fileSize;
 
-    public RandomAccessPasswordChecker(PasswordCheckerHelper helper) {
-        this.helper = helper;
+    public RandomAccessPasswordChecker(String path) throws IOException {
+        this.fileStream = new RandomAccessFile(path, "r");
+        this.fileSize = fileStream.length();
     }
 
     private long binarySearch(RandomAccessFile haystack, String needle, long start, long end) throws IOException {
@@ -29,15 +31,8 @@ public final class RandomAccessPasswordChecker implements IPasswordChecker {
     }
 
     @Override
-    public long getCount(String needle) throws IOException {
-        try (RandomAccessFile haystack = new RandomAccessFile(helper.getPath(), "r")) {
-            final long size = haystack.length();
-            return binarySearch(haystack, needle, 0, size);
-        }
-    }
-
-    @Override
-    public String getHash(String needle) throws NoSuchAlgorithmException {
-        return helper.getHash(needle);
+    public long getCount(String password) throws IOException, NoSuchAlgorithmException {
+        final String hash = HashUtil.getHash(password);
+        return binarySearch(fileStream, hash, 0, fileSize);
     }
 }

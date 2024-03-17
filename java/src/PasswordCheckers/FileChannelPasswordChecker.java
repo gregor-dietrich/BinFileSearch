@@ -8,10 +8,12 @@ import java.nio.file.StandardOpenOption;
 import java.security.NoSuchAlgorithmException;
 
 public final class FileChannelPasswordChecker implements IPasswordChecker {
-    private final PasswordCheckerHelper helper;
+    final FileChannel fileChannel;
+    final long fileSize;
 
-    public FileChannelPasswordChecker(PasswordCheckerHelper helper) {
-        this.helper = helper;
+    public FileChannelPasswordChecker(String path) throws IOException {
+        fileChannel = FileChannel.open(Paths.get(path), StandardOpenOption.READ);
+        fileSize = fileChannel.size();
     }
 
     private long binarySearch(FileChannel haystack, String needle, long start, long end) throws IOException {
@@ -56,15 +58,8 @@ public final class FileChannelPasswordChecker implements IPasswordChecker {
     }
 
     @Override
-    public long getCount(String needle) throws IOException {
-        try (FileChannel haystack = FileChannel.open(Paths.get(helper.getPath()), StandardOpenOption.READ)) {
-            final long size = haystack.size();
-            return binarySearch(haystack, needle, 0, size);
-        }
-    }
-
-    @Override
-    public String getHash(String needle) throws NoSuchAlgorithmException {
-        return helper.getHash(needle);
+    public long getCount(String password) throws IOException, NoSuchAlgorithmException {
+        final String hash = HashUtil.getHash(password);
+        return binarySearch(fileChannel, hash, 0, fileSize);
     }
 }
