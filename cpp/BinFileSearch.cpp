@@ -1,3 +1,5 @@
+//#define _PWNEDPASSWORDCHECKER_PERFORMANCE_MODE
+
 #include <algorithm>
 #include <chrono>
 #include <filesystem>
@@ -6,21 +8,27 @@
 
 #include "sha1.h"
 
-uint64_t binarySearch(std::ifstream& haystack, const std::string& needle, const uint64_t start, const uint64_t end) {
+size_t binarySearch(std::ifstream& haystack, const std::string& needle, const size_t start, const size_t end) {
 	if (start > end) {
 		return 0;
 	}
-
-	const auto middle = (start + end) / 2;
+#ifdef _PWNEDPASSWORDCHECKER_PERFORMANCE_MODE
+	const
+#endif
+	auto middle = (start + end) / 2;
 	haystack.seekg(middle, std::ios::beg);
+
+#ifdef _PWNEDPASSWORDCHECKER_PERFORMANCE_MODE
 	haystack.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+#else
+	char ch;
+	while (middle > start && haystack.get(ch) && ch != '\n') {
+		haystack.seekg(--middle, std::ios::beg);
+	}
+#endif
 
 	std::string line;
 	std::getline(haystack, line);
-
-	if (line.length() < needle.length() + 2 || line[needle.length()] != ':') {
-		throw std::runtime_error("Error parsing line: " + line);
-	}
 
 	const auto hash = line.substr(0, needle.length());
 	return needle == hash ? std::stoull(line.substr(needle.length() + 1)) : 
@@ -28,10 +36,19 @@ uint64_t binarySearch(std::ifstream& haystack, const std::string& needle, const 
 				/* needle > hash ? */ binarySearch(haystack, needle, middle + 1, end);
 }
 
-uint64_t getCount(std::ifstream& haystack, const std::string& needle) {
+size_t getCount(std::ifstream& haystack, const std::string& needle) {
 	haystack.seekg(0, std::ifstream::end); // Forward to eof
-	const uint64_t size = haystack.tellg();
+	const size_t size = haystack.tellg();
 	haystack.seekg(0, std::ifstream::beg); // Rewind to start
+#ifdef _PWNEDPASSWORDCHECKER_PERFORMANCE_MODE
+	// handle edge case where needle is the first line
+	std::string line;
+	std::getline(haystack, line);
+	const auto hash = line.substr(0, needle.length());
+	if (needle == hash) {
+		return std::stoull(line.substr(needle.length() + 1));
+	}
+#endif
 	return binarySearch(haystack, needle, 0, size);
 }
 
@@ -43,7 +60,7 @@ std::string getHash(const std::string& plaintext) {
 	return hash;
 }
 
-long long benchmark(std::function<void()> func) {
+size_t benchmark(std::function<void()> func) {
 	auto start = std::chrono::high_resolution_clock::now();
 	func();
 	auto duration = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::high_resolution_clock::now() - start);
@@ -58,11 +75,11 @@ void searchPasswords(int argc, char** argv) {
 		throw std::runtime_error("Error: Couldn't create input file stream.");
 	}
 
-	std::stringstream ss;
+	std::ostringstream ss;
 	for (int i = 2; i < argc; i++) {
 		const auto hash = getHash(argv[i]);
-		ss << "Password: " << argv[i] << '\n' << "Hash: " << getHash(hash) << '\n'
-		   << "Count: " << getCount(fileStream, hash) << "\n\n";
+		ss << "Password: " << argv[i] << "\nHash: " << hash
+		   << "\nCount: " << getCount(fileStream, hash) << "\n\n";
 	}
 	std::cout << ss.str() << '\n';
 
@@ -91,7 +108,7 @@ int main(int argc, char** argv) {
 	}
 
 	// cold runs
-	long long coldResult = 0;
+	size_t coldResult = 0;
 	try {
 		coldResult = benchmark([&]() { searchPasswords(argc, argv); });
 	}
@@ -101,20 +118,20 @@ int main(int argc, char** argv) {
 	}
 
 	// warm runs
-	const int runs = 1000;
-	long long warmResult = 0;
-	for (int i = 0; i < runs; i++) {
-		try {
+	const size_t runs = 1000;
+	size_t warmResult = 0;
+	try {
+		for (int i = 0; i < runs; i++) {
 			warmResult += benchmark([&]() { searchPasswords(argc, argv); });
 		}
-		catch (const std::runtime_error& err) {
-			std::cerr << err.what() << '\n';
-			return EXIT_FAILURE;
-		}
+	}
+	catch (const std::runtime_error& err) {
+		std::cerr << err.what() << '\n';
+		return EXIT_FAILURE;
 	}
 
-	std::cout << "Cold run time for 10 passwords: " << coldResult << " microseconds (1 run)\n"
-			  << "Average time taken for 10 passwords: " << warmResult / runs << " microseconds (" + std::to_string(runs) + " runs)\n";
+	std::cout << "Cold run time for " << argc - 2 << " passwords: " << coldResult << " microseconds (1 run)\n"
+			  << "Average time taken for " << argc - 2 << " passwords: " << warmResult / runs << " microseconds (" + std::to_string(runs) + " runs)\n";
 		
 	return EXIT_SUCCESS;
 }
